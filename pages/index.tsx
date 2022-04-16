@@ -1,81 +1,49 @@
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { NextPage } from 'next';
-import * as Styled from '../styles/utils';
-import Adjusters from '../components/Adjusters';
-import Clock from '../components/Clock';
-import Beep from '@/components/Beep';
+import * as Styled from '../styles/components'
+import { drums } from '../utils/presets'
 
 interface IndexPageProps { }
 
 const Home: NextPage<IndexPageProps> = () => {
-  const interval = useRef<any>(null);
-  const audioBeep = useRef<any>(null);
-  const [sessionActive, setSessionActive] = useState(true);
-  const [sessionTimer, setSessionTimer] = useState(1500);
-  const [breakTimer, setBreakTimer] = useState(300);
 
+  const [title, setTitile] = useState('');
+  const clips = Array.from({ length: drums.length }, a => useRef<any>(null));
 
-  const handleSwitch = () => {
-    setSessionActive((prevState) => !prevState);
-  }
+  const handleUserKeyPress = useCallback(event => {
+    const { keyCode } = event;
+    const foundClip = drums.find((obj) => obj.keyCode === keyCode)
+    if (foundClip) {
+      play(foundClip.id, foundClip.name)
+    }
+  }, []);
 
-  const playBeep = () => {
-    audioBeep.current.play()
-  }
+  useEffect(() => {
+    window.addEventListener("keydown", handleUserKeyPress);
+    return () => {
+      window.removeEventListener("keydown", handleUserKeyPress);
+    };
+  }, [handleUserKeyPress]);
 
-  const stopBeep = () => {
-    audioBeep.current.pause();
-    audioBeep.current.currentTime = 0;
+  const play = (id: number, name: string) => {
+    setTitile(name)
+    clips[id].current.currentTime = 0;
+    clips[id].current.play();
   }
 
   return (
-    <>
-      <Styled.Container>
-
-        <Beep audioBeep={audioBeep} />
-        <Styled.AdjustersWrapper>
-          <Adjusters
-            setSessionTimer={setSessionTimer}
-            setBreakTimer={setBreakTimer}
-            value={sessionTimer}
-            label='Session'
-            labelId='session-label'
-            lengthId='session-length'
-            decId='session-decrement'
-            incId='session-increment' />
-          <Adjusters
-            setSessionTimer={setSessionTimer}
-            setBreakTimer={setBreakTimer}
-            value={breakTimer}
-            label='Break'
-            labelId="break-label"
-            lengthId='break-length'
-            decId='break-decrement'
-            incId='break-increment' />
-        </Styled.AdjustersWrapper>
-        <Clock
-          interval={interval}
-          setSessionActive={setSessionActive}
-          setBreakTimer={setBreakTimer}
-          setSessionTimer={setSessionTimer}
-          sessionActive={sessionActive}
-          sessionTimer={sessionTimer}
-          breakTimer={breakTimer}
-          stopBeep={stopBeep}
-          playBeep={playBeep}
-          handleSwitch={handleSwitch} />
-
-        <Styled.SwitchWrapper>
-          <Styled.Switch type="checkbox" readOnly checked={!sessionActive} onClick={handleSwitch}></Styled.Switch>
-          <Styled.SwitchLabel htmlFor=""><Styled.SwitchSpan>Session</Styled.SwitchSpan></Styled.SwitchLabel>
-        </Styled.SwitchWrapper>
-        <Styled.Github href="https://github.com/Onixaz/pomodoro-clock-nextjs">
-          Source code on Github
-        </Styled.Github>
-      </Styled.Container>
-    </>
+    <Styled.Container id="drum-machine">     
+      <Styled.Grid >
+        {drums && drums.map((el) =>
+          <Styled.Button className='drum-pad' id={el.keyTrigger} key={el.keyTrigger} onClick={() => play(el.id, el.name)} >
+            <audio src={el.url} ref={clips[el.id]} className='clip' id={el.keyTrigger} />{el.keyTrigger}</Styled.Button>
+        )}
+      </Styled.Grid>
+      <Styled.Display id="display">{title}</Styled.Display>
+    </Styled.Container>
   )
 }
 
 export default Home
+
 
