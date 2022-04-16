@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { createRef, useCallback, useEffect, useRef, useState } from 'react';
 import { NextPage } from 'next';
 import * as Styled from '../styles/components'
 import { drums } from '../utils/presets'
@@ -7,8 +7,9 @@ interface IndexPageProps { }
 
 const Home: NextPage<IndexPageProps> = () => {
 
-  const [title, setTitile] = useState('');
-  const clips = Array.from({ length: drums.length }, a => useRef<any>(null));
+  const [title, setTitle] = useState('');
+  const clips = useRef<any>([])
+
 
   const handleUserKeyPress = useCallback(event => {
     const { keyCode } = event;
@@ -18,6 +19,12 @@ const Home: NextPage<IndexPageProps> = () => {
     }
   }, []);
 
+  const addToRefs = (el: any) => {
+    if (el && !clips.current.includes(el)) {
+      clips.current.push(el);
+    }
+  };
+
   useEffect(() => {
     window.addEventListener("keydown", handleUserKeyPress);
     return () => {
@@ -26,21 +33,27 @@ const Home: NextPage<IndexPageProps> = () => {
   }, [handleUserKeyPress]);
 
   const play = (id: number, name: string) => {
-    setTitile(name)
-    clips[id].current.currentTime = 0;
-    clips[id].current.play();
+    setTitle(name)
+    const clip = clips.current[id];
+    if (clip) {
+      clip.currentTime = 0;
+      clip.play();
+    }
+
   }
 
   return (
-    <Styled.Container id="drum-machine">     
+    <Styled.Container id="drum-machine">
       <Styled.Grid >
-        {drums && drums.map((el) =>
-          <Styled.Button className='drum-pad' id={el.keyTrigger} key={el.keyTrigger} onClick={() => play(el.id, el.name)} >
-            <audio src={el.url} ref={clips[el.id]} className='clip' id={el.keyTrigger} />{el.keyTrigger}</Styled.Button>
-        )}
+        {drums && drums.map((el) => {
+
+          const getRef = (element: any) => (clips.current.push(element));
+          return <Styled.Button className='drum-pad' id={el.keyTrigger} key={el.keyTrigger} onClick={() => play(el.id, el.name)} >
+            <audio src={el.url} key={el.id} ref={(audio) => addToRefs(audio)} className='clip' id={el.keyTrigger} />{el.keyTrigger}</Styled.Button>
+        })}
       </Styled.Grid>
       <Styled.Display id="display">{title}</Styled.Display>
-    </Styled.Container>
+    </Styled.Container >
   )
 }
 
