@@ -10,10 +10,22 @@ justify-content: center;
 align-items: center;
 `
 
+export const Title = styled.h1`
+
+font-size: 30px;
+letter-spacing: 1px;
+color: #fff;
+margin: 2rem;
+`
+
 export const Display = styled.h1`
 margin: 3rem 1rem;
+display: flex;
+justify-content: center;
+align-items: center;
 text-align: center;
 width: 200px;
+height: 60px;
 padding: 10px 35px;
 font-size: 15px;
 color: #fff;
@@ -31,6 +43,17 @@ export const Grid = styled.div`
   max-width: 400px;
   grid-template-columns: repeat(3, 1fr);
 
+`
+export const Link = styled.a`
+  color: #fff;
+  margin: 2rem;
+  opacity: 0.8;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  &:hover {
+    color: lightgreen;
+  }
 `
 
 export const Button = styled.button`

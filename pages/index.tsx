@@ -44,15 +44,15 @@ const Home: NextPage<IndexPageProps> = () => {
 
   return (
     <Styled.Container id="drum-machine">
+      <Styled.Title>Drum machine!</Styled.Title>
       <Styled.Grid >
         {drums && drums.map((el) => {
-
-          const getRef = (element: any) => (clips.current.push(element));
           return <Styled.Button className='drum-pad' id={el.keyTrigger} key={el.keyTrigger} onClick={() => play(el.id, el.name)} >
             <audio src={el.url} key={el.id} ref={(audio) => addToRefs(audio)} className='clip' id={el.keyTrigger} />{el.keyTrigger}</Styled.Button>
         })}
       </Styled.Grid>
       <Styled.Display id="display">{title}</Styled.Display>
+      <Styled.Link href="https://github.com/Onixaz/drum-pad-nextjs">Source code</Styled.Link>
     </Styled.Container >
   )
 }
